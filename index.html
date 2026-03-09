@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Issues Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <div id="login-page" class="flex flex-col items-center justify-center min-h-screen p-4">
+        <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md text-center border border-gray-100">
+            <img src="github-logo.png" alt="Logo" class="w-20 mx-auto mb-4">
+            <h1 class="text-2xl font-bold text-gray-800">GitHub Issues Tracker</h1>
+            <p class="text-gray-500 mb-6">Sign in to manage your issues</p>
+
+            <form id="login-form" class="space-y-4 text-left">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Username</label>
+                    <input type="text" id="username" placeholder="Enter Username" class="w-full p-3 border rounded-md mt-1 focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <p class="text-xs text-indigo-600 mt-1">Default: admin</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" id="password" placeholder="Enter Password" class="w-full p-3 border rounded-md mt-1 focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <p class="text-xs text-indigo-600 mt-1">Default: admin123</p>
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-md font-semibold hover:bg-indigo-700 transition">Sign In</button>
+            </form>
+
+            <div class="mt-6 pt-6 border-t border-gray-100">
+                <p class="text-sm text-gray-400 mb-2 uppercase tracking-widest">OR</p>
+                <div class="bg-gray-50 p-4 rounded-md">
+                    <p class="text-xs text-gray-500">Demo Credentials:</p>
+                    <p class="font-bold text-gray-700">Username: <span class="font-normal">admin</span></p>
+                    <p class="font-bold text-gray-700">Password: <span class="font-normal">admin123</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-page" class="hidden">
+        <nav class="bg-white border-b px-6 py-4 flex flex-wrap justify-between items-center sticky top-0 z-50">
+            <div class="flex items-center gap-2">
+                <img src="Aperture.png" class="w-8" alt="logo">
+                <span class="font-bold text-lg hidden sm:block">GitHub Issues Tracker</span>
+            </div>
+            <div class="flex gap-2 w-full sm:w-auto mt-4 sm:mt-0">
+                <input type="text" id="search-input" placeholder="Search issues..." class="border p-2 rounded-md flex-grow sm:w-64 outline-none focus:border-indigo-500">
+                <button onclick="openCreateModal()" class="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium">+ New Issue</button>
+            </div>
+        </nav>
+
+        <main class="max-w-7xl mx-auto p-6">
+            <div class="bg-white rounded-xl shadow-sm border p-4 mb-6">
+                <div class="flex gap-2 mb-6 border-b pb-4">
+                    <button id="filter-all" class="tab-btn active">All</button>
+                    <button id="filter-open" class="tab-btn">Open</button>
+                    <button id="filter-closed" class="tab-btn">Closed</button>
+                </div>
+                
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-indigo-100 text-indigo-600 rounded-lg">📋</div>
+                        <div>
+                            <h2 class="font-bold text-gray-800"><span id="issue-count">0</span> Issues</h2>
+                            <p class="text-sm text-gray-500">Track and manage your project issues</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 text-sm font-medium">
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 bg-green-500 rounded-full"></span> Open</span>
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 bg-purple-500 rounded-full"></span> Closed</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="loader" class="hidden flex justify-center py-20">
+                <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
+            </div>
+
+            <div id="issues-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                </div>
+        </main>
+    </div>
+
+    <div id="modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-2xl w-full p-6 relative shadow-2xl border border-gray-100">
+            <div id="modal-content"></div>
+            
+            <div class="flex justify-end mt-6">
+                <button onclick="closeModal('modal')" class="bg-indigo-600 text-white px-6 py-2 rounded-md font-bold hover:bg-indigo-700 transition shadow-md">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="create-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-md w-full p-6 relative shadow-2xl">
+            <h2 class="text-xl font-bold mb-4">Create New Issue</h2>
+            <form id="create-issue-form" class="space-y-4">
+                <input type="text" id="new-title" placeholder="Issue Title" class="w-full p-2 border rounded focus:ring-2 focus:ring-indigo-500 outline-none" required>
+                <textarea id="new-desc" placeholder="Description" class="w-full p-2 border rounded focus:ring-2 focus:ring-indigo-500 outline-none" rows="3" required></textarea>
+                <select id="new-priority" class="w-full p-2 border rounded outline-none">
+                    <option value="Low">Low</option>
+                    <option value="Medium" selected>Medium</option>
+                    <option value="High">High</option>
+                </select>
+                <input type="text" id="new-labels" placeholder="Labels (comma separated)" class="w-full p-2 border rounded focus:ring-2 focus:ring-indigo-500 outline-none">
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="closeModal('create-modal')" class="flex-1 bg-gray-100 py-2 rounded font-medium hover:bg-gray-200 transition">Cancel</button>
+                    <button type="submit" class="flex-1 bg-indigo-600 text-white py-2 rounded font-medium hover:bg-indigo-700 transition">Submit Issue</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
